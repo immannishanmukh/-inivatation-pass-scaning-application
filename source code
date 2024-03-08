@@ -1,0 +1,118 @@
+from kivy.app import App
+from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.camera import Camera
+from kivy.uix.button import Button
+from kivy.uix.label import Label
+from kivy.clock import Clock
+import cv2
+import numpy as np
+
+class QRCodeScannerApp(App):
+    def build(self):
+        self.layout = BoxLayout(orientation='vertical')
+        self.camera = Camera(resolution=(640, 480), play=True)
+        self.layout.add_widget(self.camera)
+        self.qr_label = Label(text="Scanning QR Code...")
+        self.layout.add_widget(self.qr_label)
+
+        self.capture_button = Button(text="Capture QR Code", on_press=self.capture_qr_code)
+        self.layout.add_widget(self.capture_button)
+        self.qr_data = {
+            "klQ80IBT" :['WELCOME', 'NAME : SATHI VEERA VENKATA SAIDHANUSH REDDY', 'COLLEGE NAME : ADITYA COLLEGE OF ENGINEERING ', 'TEAM NAME : TODO', 'HOSTEL : ', 'BRANCH : CIVIL ENGINEERING '],
+            "nbjME7DD":['WELCOME', 'NAME : chandalada Teja', 'COLLEGE NAME : Aditya College of Engineering ', 'TEAM NAME : Upeed ', 'HOSTEL : ', 'BRANCH : Civil Engineering '],
+            "GRBJMafp":['WELCOME', 'NAME : Yashodh Veeresh Nerella ', 'COLLEGE NAME : Aditya college of engineering and technology ', 'TEAM NAME : Best choice ', 'HOSTEL : ', 'BRANCH : Electronics and communication engineering '],
+            "LiDfTTIR":['WELCOME', 'NAME : Peruri Pavani', 'COLLEGE NAME : Aditya college of engineering and technology ', 'TEAM NAME : Lone Stargazer', 'HOSTEL : ', 'BRANCH : ECE'],
+            "YXX8jZ2V":['WELCOME', 'NAME : KOILADA SAI ', 'COLLEGE NAME : ADITYA COLLEGE OF ENGINEERING ', 'TEAM NAME :  YUJASRAM', 'HOSTEL : ', 'BRANCH : Civil and CSE -Aiml'],
+            "31IEoSMm":['WELCOME', 'NAME : Jayavardhan', 'COLLEGE NAME : Aditya college of engineering and technology', 'TEAM NAME : Jayavardhan', 'HOSTEL : ', 'BRANCH : ECE'],
+            "KqQTDFta":['WELCOME', 'NAME : GOPARAJU KARTHIK', 'COLLEGE NAME : Smt.B.Seetha Polytechnic', 'TEAM NAME : INNOVATORSKRAZY', 'HOSTEL : ', 'BRANCH : DCME'],
+            "rfsYz3ui":['WELCOME', 'NAME : Moeen Shaik', 'COLLEGE NAME : aditya college of engineering and technology', 'TEAM NAME : StarMeUp', 'HOSTEL : ', 'BRANCH : CSE(AIML)'],
+            "xbl66My4":['WELCOME', 'NAME : SHAIK MAHID', 'COLLEGE NAME : Smt.b.seetha polytechnic ', 'TEAM NAME : Firefighting robot', 'HOSTEL : ', 'BRANCH : Computer engineer'],
+            "6mEeAgu0":['WELCOME', 'NAME : Guddeti yasvanth ', 'COLLEGE NAME : Smt.b.seetha polytechnic', 'TEAM NAME : INNOVATORSKRAZY', 'HOSTEL : ', 'BRANCH : Computer engineering'],
+            "SPHa1iIi":['WELCOME', 'NAME : P. Sravani', 'COLLEGE NAME : Aditya college of Engineering', 'TEAM NAME : Biocrafts', 'HOSTEL : ', 'BRANCH : EEE'],
+            "u8a7i82F":['WELCOME', 'NAME : B. Akshay Gowri Shankar', 'COLLEGE NAME : Aditya college of engineering', 'TEAM NAME : Adapt Mark', 'HOSTEL : ', 'BRANCH : Cse - Aiml'],
+            "fudj5QqW":['WELCOME', 'NAME : M.pranathi', 'COLLEGE NAME : Aditya college of engineering ', 'TEAM NAME : Sojourn', 'HOSTEL : ', 'BRANCH : Cse-aiml'],
+            "IAKrs0JX":['WELCOME', 'NAME : Emmandi Ramesh ', 'COLLEGE NAME : Aditya college of engineering ', 'TEAM NAME : Team 3D', 'HOSTEL : ', 'BRANCH : ECE'],
+            "oz1oK4kW":['WELCOME', 'NAME : K. L. N. BHASKAR SAI KUMAR ', 'COLLEGE NAME : Aditya college of engineering ', 'TEAM NAME : Team Hydrotribe ', 'HOSTEL : ', 'BRANCH : Civil '],
+            "JaMZB2j3":['WELCOME', 'NAME : MURALASETTI VEKATESH ', 'COLLEGE NAME : ADITYA COLLEGE OF ENGINEERING ', 'TEAM NAME : TODO', 'HOSTEL : ', 'BRANCH : CIVIL ENGINEERING '],
+            "lYZZLRcg":['WELCOME', 'NAME : k sai Aravind ', 'COLLEGE NAME : Aditya College of Engineering ', 'TEAM NAME : Upeed ', 'HOSTEL : ', 'BRANCH : Civil Engineering '],
+            "1OKHoF0O":['WELCOME', 'NAME : K Tharun', 'COLLEGE NAME : Aditya college of engineering and technology ', 'TEAM NAME : Best choice ', 'HOSTEL : ', 'BRANCH : Electronics and communication engineering '],
+            "y56QcosV":['WELCOME', 'NAME : Talatam Kranthi Teja', 'COLLEGE NAME : ADITYA COLLEGE OF ENGINEERING ', 'TEAM NAME :  YUJASRAM', 'HOSTEL : ', 'BRANCH : Civil and CSE -Aiml'],
+            "fD7lV4lQ":['WELCOME', 'NAME : Hari Hemanth', 'COLLEGE NAME : Aditya college of engineering and technology', 'TEAM NAME : Jayavardhan', 'HOSTEL : ', 'BRANCH : ECE'],
+            "Q8z88CsX":['WELCOME', 'NAME : Pentapati jaswanth', 'COLLEGE NAME : Smt.B.Seetha Polytechnic', 'TEAM NAME : INNOVATORSKRAZY', 'HOSTEL : ', 'BRANCH : DCME'],
+            "gTOn4utW":['WELCOME', 'NAME : Parvaz Sharief', 'COLLEGE NAME : aditya college of engineering and technology', 'TEAM NAME : StarMeUp', 'HOSTEL : ', 'BRANCH : CSE(AIML)'],
+            "rLiY6PD9":['WELCOME', 'NAME : ARAVA CHAITANYA BABAJI', 'COLLEGE NAME : Smt.b.seetha polytechnic ', 'TEAM NAME : Firefighting robot', 'HOSTEL : ', 'BRANCH : Computer engineer'],
+            "mEoGClmD":['WELCOME', 'NAME : Suroju jnana venkat Karthik', 'COLLEGE NAME : Smt.b.seetha polytechnic', 'TEAM NAME : INNOVATORSKRAZY', 'HOSTEL : ', 'BRANCH : Computer engineering'],
+            "qoB6JmK4":['WELCOME', 'NAME : G. Srilekhya', 'COLLEGE NAME : Aditya college of Engineering', 'TEAM NAME : Biocrafts', 'HOSTEL : ', 'BRANCH : EEE'],
+            "gxgO99bo":['WELCOME', 'NAME : S. Sashi upendra', 'COLLEGE NAME : Aditya college of engineering', 'TEAM NAME : Adapt Mark', 'HOSTEL : ', 'BRANCH : Cse - Aiml'],
+            "4dDAOCa1":['WELCOME', 'NAME : M.krishnaji', 'COLLEGE NAME : Aditya college of engineering ', 'TEAM NAME : Sojourn', 'HOSTEL : ', 'BRANCH : Cse-aiml'],
+            "fRJNWaEv":['WELCOME', 'NAME : KATAKAM SRI VENKATA SAI SIVA', 'COLLEGE NAME : Aditya college of engineering ', 'TEAM NAME : Team 3D', 'HOSTEL : ', 'BRANCH : ECE'],
+            "0m8Qp2Zs":["WELCOME", "NAME : DANGETI VARA PRASAD","COLLEGE NAME : ADITYA POLYTECHNIC COLLEGE" , "TEAM NAME : D EMPERORS"],
+        }
+        Clock.schedule_interval(self.scan_qr_code, 1.0 / 30.0)
+
+        return self.layout
+
+    def scan_qr_code(self, dt):
+        frame_texture = self.camera.texture
+
+        if frame_texture is not None:
+    
+            frame_pixels = frame_texture.pixels
+
+            if frame_pixels is not None:
+                frame_array = bytearray(frame_pixels)
+                frame_np = np.array(frame_array, dtype=np.uint8)
+                frame_np = frame_np.reshape((frame_texture.height, frame_texture.width, 4))
+                cv2_frame = cv2.cvtColor(frame_np, cv2.COLOR_RGBA2BGR)
+                qr_code_detector = cv2.QRCodeDetector()
+                _, decoded_info, _, _ = qr_code_detector.detectAndDecodeMulti(cv2_frame)
+
+                if decoded_info:
+                    for decoded_info_item in decoded_info:
+                        if decoded_info_item in self.qr_data:
+                            details = self.qr_data[decoded_info_item]
+                            self.qr_label.text = f"QR Code Detected:\n{decoded_info_item}\nDetails: {details}"
+                        else:
+                            self.qr_label.text = f"QR Code Detected:\n{decoded_info_item}\nDetails not found for this QR Code"
+                    return
+                
+                
+                
+        self.qr_label.text = "Scanning QR Code..."
+
+    def capture_qr_code(self, instance):
+        frame_texture = self.camera.texture
+
+        if frame_texture is not None:
+            frame_pixels = frame_texture.pixels
+
+            if frame_pixels is not None:
+                frame_array = bytearray(frame_pixels)
+                frame_np = np.array(frame_array, dtype=np.uint8)
+
+              
+                frame_np = frame_np.reshape((frame_texture.height, frame_texture.width, 4))
+
+              
+                cv2_frame = cv2.cvtColor(frame_np, cv2.COLOR_RGBA2BGR)
+
+                
+                qr_code_detector = cv2.QRCodeDetector()
+                _, decoded_info, _, _ = qr_code_detector.detectAndDecode(cv2_frame)
+
+                if decoded_info:
+                  
+                    for decoded_info_item in decoded_info:
+                       
+                        if decoded_info_item in self.qr_data:
+                            details = self.qr_data[decoded_info_item]
+                            self.qr_label.text = f"Captured QR Code:\n{decoded_info_item}\nDetails: {details}"
+                        else:
+                            self.qr_label.text = f"Captured QR Code:\n{decoded_info_item}\nDetails not found for this QR Code"
+                    return
+
+        
+        self.qr_label.text = "No QR Code captured."
+
+if __name__ == '__main__':
+    QRCodeScannerApp().run()
